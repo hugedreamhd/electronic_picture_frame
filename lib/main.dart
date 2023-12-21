@@ -56,20 +56,24 @@ class _MyGalleryAppState extends State<MyGalleryApp> {
       ),
       body: images == null
           ? Center(child: Text('No data'))
-          : FutureBuilder<Uint8List>(
-              future: images![0].readAsBytes(),
-              builder: (context, snapshot) {
-                final data = snapshot.data;
+          : PageView(
+            children: images!.map((image) {
+                return FutureBuilder<Uint8List>(
+                    future: image.readAsBytes(),
+                    builder: (context, snapshot) {
+                      final data = snapshot.data;
 
-                if (data == null ||
-                    snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return Image.memory(
-                  data,
-                  width: double.infinity,
-                );
-              }),
+                      if (data == null ||
+                          snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      return Image.memory(
+                        data,
+                        width: double.infinity,
+                      );
+                    });
+            }).toList(),//삼항연산을 쓰게 되면 널이 아님을 보증하는 ! 필요
+          ),
     );
   }
 }
