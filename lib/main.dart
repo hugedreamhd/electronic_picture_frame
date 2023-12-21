@@ -37,7 +37,6 @@ class _MyGalleryAppState extends State<MyGalleryApp> {
   @override
   void initState() {
     super.initState();
-
     loadImages();
   }
 
