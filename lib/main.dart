@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -36,6 +37,9 @@ class _MyGalleryAppState extends State<MyGalleryApp> {
   final ImagePicker _picker = ImagePicker();
   List<XFile>? images;
 
+  int currentPage = 0; //현재 페이지 기억
+  final pageController = PageController();
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +48,22 @@ class _MyGalleryAppState extends State<MyGalleryApp> {
 
   Future<void> loadImages() async {
     images = await _picker.pickMultiImage();
+
+    if (images != null) {
+      Timer.periodic(const Duration(seconds: 5), (timer) {
+        currentPage++;
+
+        if (currentPage > images!.length - 1) {
+          currentPage = 0;
+        }
+
+        pageController.animateToPage(
+          currentPage,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.linear,
+        );
+      });
+    }
 
     setState(() {});
   }
@@ -57,7 +77,8 @@ class _MyGalleryAppState extends State<MyGalleryApp> {
       body: images == null
           ? Center(child: Text('No data'))
           : PageView(
-            children: images!.map((image) {
+              controller: pageController, //컨트롤러 통해 페이지뷰 조작
+              children: images!.map((image) {
                 return FutureBuilder<Uint8List>(
                     future: image.readAsBytes(),
                     builder: (context, snapshot) {
@@ -72,8 +93,8 @@ class _MyGalleryAppState extends State<MyGalleryApp> {
                         width: double.infinity,
                       );
                     });
-            }).toList(),//삼항연산을 쓰게 되면 널이 아님을 보증하는 ! 필요
-          ),
+              }).toList(), //삼항연산을 쓰게 되면 널이 아님을 보증하는 ! 필요
+            ),
     );
   }
 }
